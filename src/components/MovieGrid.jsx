@@ -5,21 +5,7 @@ import "./MovieGrid.css";
 const TMDB_BASE = "https://api.themoviedb.org/3";
 const IMG_BASE = "https://image.tmdb.org/t/p/w500";
 
-// Grid layout config — col span + row span per card slot
-const GRID_LAYOUT = [
-  { col: 3, row: 6 },
-  { col: 4, row: 4 },
-  { col: 5, row: 7 },
-  { col: 3, row: 5 },
-  { col: 4, row: 6 },
-  { col: 5, row: 5 },
-  { col: 3, row: 4 },
-  { col: 4, row: 3 },
-  { col: 2, row: 5 },
-  { col: 4, row: 4 },
-  { col: 3, row: 5 },
-  { col: 3, row: 4 },
-];
+
 
 export default function MovieGrid({ apiKey, searchQuery, showWatchlist }) {
   const [movies, setMovies] = useState([]);
@@ -204,13 +190,11 @@ export default function MovieGrid({ apiKey, searchQuery, showWatchlist }) {
     <>
       <div className="movie-grid">
         {movies.map((movie, i) => {
-          const layout = GRID_LAYOUT[i % GRID_LAYOUT.length];
           const inWL = isInWatchlist(movie.id);
           return (
             <div
-              key={movie.id}
+              key={`${movie.id}-${i}`}
               className="movie-card"
-              style={{ gridColumn: `span ${layout.col}`, gridRow: `span ${layout.row}` }}
               onMouseEnter={e => handleMouseEnter(e, movie)}
               onMouseLeave={handleMouseLeave}
             >
