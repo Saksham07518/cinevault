@@ -1,0 +1,213 @@
+/* ── Tooltip container ── */
+.movie-tooltip {
+  position: fixed;
+  width: 230px;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0.9) translateY(8px);
+  transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  font-family: 'DM Sans', sans-serif;
+}
+
+.movie-tooltip.visible {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  pointer-events: auto;
+}
+
+/* ── Box ── */
+.tip-box {
+  background: rgba(10, 8, 18, 0.96);
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow:
+    0 24px 64px rgba(0, 0, 0, 0.85),
+    0 0 0 0.5px rgba(255, 255, 255, 0.05) inset;
+  backdrop-filter: blur(20px);
+}
+
+/* ── Banner ── */
+.tip-banner {
+  position: relative;
+  height: 100px;
+  overflow: hidden;
+  background: #1a1028;
+}
+
+.tip-banner-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: brightness(0.7) saturate(1.2);
+}
+
+.tip-banner-fallback {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #1a0f28, #2a1a38);
+}
+
+.tip-banner-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(10, 8, 18, 0.9) 0%,
+    rgba(10, 8, 18, 0.2) 60%,
+    transparent 100%
+  );
+}
+
+.tip-banner-title {
+  position: absolute;
+  bottom: 10px;
+  left: 12px;
+  right: 12px;
+  font-family: 'Playfair Display', serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+  text-shadow: 0 1px 6px rgba(0,0,0,0.9);
+  z-index: 2;
+}
+
+/* ── Body ── */
+.tip-body {
+  padding: 12px 14px 10px;
+}
+
+.tip-genres {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-bottom: 7px;
+}
+
+.tip-genre {
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 20px;
+  border: 0.5px solid rgba(255, 255, 255, 0.14);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.tip-meta {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 8px;
+}
+
+.tip-rating {
+  font-size: 12px;
+  font-weight: 500;
+  color: #f0c040;
+}
+
+.tip-year {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.tip-dot {
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  flex-shrink: 0;
+}
+
+.tip-desc {
+  font-size: 11px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.42);
+  margin-bottom: 11px;
+}
+
+/* ── Actions ── */
+.tip-actions {
+  display: flex;
+  gap: 7px;
+}
+
+.tip-btn-watch {
+  flex: 1;
+  background: #e8854a;
+  color: #080810;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 7px 0;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.tip-btn-watch:hover { opacity: 0.85; }
+
+.tip-btn-save {
+  background: rgba(255, 255, 255, 0.07);
+  color: rgba(255, 255, 255, 0.65);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  padding: 7px 11px;
+  border-radius: 8px;
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+
+.tip-btn-save:hover {
+  background: rgba(232, 133, 74, 0.15);
+  color: #e8854a;
+  border-color: rgba(232, 133, 74, 0.3);
+}
+
+.tip-btn-save.saved {
+  background: rgba(232, 133, 74, 0.15);
+  color: #e8854a;
+  border-color: rgba(232, 133, 74, 0.35);
+}
+
+/* ── Divider ── */
+.tip-divider {
+  height: 0.5px;
+  background: rgba(255, 255, 255, 0.07);
+  margin: 0 14px;
+}
+
+/* ── Stars ── */
+.tip-stars {
+  padding: 9px 14px 12px;
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.tip-star {
+  color: #f0c040;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.tip-star.empty { color: rgba(255, 255, 255, 0.15); }
+
+.tip-score-label {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.28);
+  margin-left: 5px;
+}
