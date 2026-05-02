@@ -25,6 +25,10 @@ export default function MovieGrid({ apiKey, searchQuery, showWatchlist }) {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const observerTarget = useRef(null);
   const [tooltip, setTooltip] = useState({ visible: false, movie: null, x: 0, y: 0 });
   const [watchlist, setWatchlist] = useState(() => {
     try { return JSON.parse(localStorage.getItem("watchlist") || "[]"); }
@@ -43,28 +47,58 @@ export default function MovieGrid({ apiKey, searchQuery, showWatchlist }) {
   useEffect(() => {
     if (!showWatchlist) {
       if (!apiKey) { setError("No API key provided"); setLoading(false); return; }
-      fetchMovies(searchQuery);
+      setPage(1);
+      setHasMore(true);
+      fetchMovies(searchQuery, 1);
     }
   }, [apiKey, searchQuery, showWatchlist]);
 
-  async function fetchMovies(query) {
+  useEffect(() => {
+    if (!showWatchlist && page > 1) {
+      fetchMovies(searchQuery, page);
+    }
+  }, [page]);
+
+  useEffect(() => {
+    if (showWatchlist || loading || isFetchingMore || !hasMore) return;
+
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting) {
+          setPage(p => p + 1);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (observerTarget.current) observer.observe(observerTarget.current);
+    
+    return () => observer.disconnect();
+  }, [showWatchlist, loading, isFetchingMore, hasMore]);
+
+  async function fetchMovies(query, pageNum) {
     try {
-      setLoading(true);
+      if (pageNum === 1) setLoading(true);
+      else setIsFetchingMore(true);
       setError(null);
 
       const url = query
-        ? `${TMDB_BASE}/search/movie?api_key=${apiKey}&language=en-US&query=${encodeURIComponent(query)}&page=1`
-        : `${TMDB_BASE}/trending/movie/week?api_key=${apiKey}&language=en-US`;
+        ? `${TMDB_BASE}/search/movie?api_key=${apiKey}&language=en-US&query=${encodeURIComponent(query)}&page=${pageNum}`
+        : `${TMDB_BASE}/trending/movie/week?api_key=${apiKey}&language=en-US&page=${pageNum}`;
 
       const res = await fetch(url);
       if (!res.ok) throw new Error("Failed to fetch movies");
       const data = await res.json();
 
       if (!data.results?.length) {
-        setMovies([]);
+        if (pageNum === 1) setMovies([]);
+        setHasMore(false);
         setLoading(false);
+        setIsFetchingMore(false);
         return;
       }
+
+      setHasMore(pageNum < data.total_pages);
 
       // Fetch genres to map ids → names
       const gRes = await fetch(`${TMDB_BASE}/genre/movie/list?api_key=${apiKey}&language=en-US`);
@@ -72,12 +106,12 @@ export default function MovieGrid({ apiKey, searchQuery, showWatchlist }) {
       const genreMap = {};
       gData.genres.forEach(g => { genreMap[g.id] = g.name; });
 
-      const top12 = data.results.slice(0, 12).map(m => ({
+      const newMovies = data.results.map(m => ({
         id: m.id,
         title: m.title,
         year: m.release_date?.split("-")[0] || "—",
         rating: m.vote_average?.toFixed(1),
-        genres: m.genre_ids.slice(0, 2).map(id => genreMap[id]).filter(Boolean),
+        genres: m.genre_ids?.slice(0, 2).map(id => genreMap[id]).filter(Boolean) || [],
         desc: m.overview,
         poster: m.poster_path ? `${IMG_BASE}${m.poster_path}` : null,
         backdrop: m.backdrop_path ? `https://image.tmdb.org/t/p/w780${m.backdrop_path}` : null,
@@ -85,11 +119,12 @@ export default function MovieGrid({ apiKey, searchQuery, showWatchlist }) {
         isNew: new Date(m.release_date) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
         isHot: m.popularity > 500,
       }));
-      setMovies(top12);
+      setMovies(prev => pageNum === 1 ? newMovies : [...prev, ...newMovies]);
     } catch (e) {
       setError(e.message);
     } finally {
       setLoading(false);
+      setIsFetchingMore(false);
     }
   }
 
@@ -169,7 +204,7 @@ export default function MovieGrid({ apiKey, searchQuery, showWatchlist }) {
     <>
       <div className="movie-grid">
         {movies.map((movie, i) => {
-          const layout = GRID_LAYOUT[i] || { col: 3, row: 4 };
+          const layout = GRID_LAYOUT[i % GRID_LAYOUT.length];
           const inWL = isInWatchlist(movie.id);
           return (
             <div
@@ -234,6 +269,16 @@ export default function MovieGrid({ apiKey, searchQuery, showWatchlist }) {
         onMouseEnter={handleTooltipEnter}
         onMouseLeave={handleMouseLeave}
       />
+
+      {/* Infinite Scroll Sentinel */}
+      {!showWatchlist && hasMore && (
+        <div 
+          ref={observerTarget} 
+          style={{ height: 40, width: "100%", display: "flex", justifyContent: "center", alignItems: "center", padding: "20px 0", color: "rgba(255,255,255,0.4)", fontSize: 13 }}
+        >
+          {isFetchingMore && <span>Loading more movies...</span>}
+        </div>
+      )}
     </>
   );
 }
