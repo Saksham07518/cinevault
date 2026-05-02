@@ -16,6 +16,18 @@ const breakpointColumnsObj = {
   500: 1
 };
 
+// Different aspect ratios to create that staggered Pinterest look
+const MASONRY_RATIOS = [
+  "1/1.4",
+  "1/1.8",
+  "1/1.2",
+  "1/1.6",
+  "1/1.3",
+  "1/1.7",
+  "1/1.5",
+  "1/1.35",
+];
+
 export default function MovieGrid({ apiKey, searchQuery, showWatchlist }) {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -175,9 +187,12 @@ export default function MovieGrid({ apiKey, searchQuery, showWatchlist }) {
 
   if (loading) return (
     <div className="grid-loading">
-      {Array.from({ length: 12 }).map((_, i) => (
-        <div key={i} className="skeleton-card" />
-      ))}
+      {Array.from({ length: 12 }).map((_, i) => {
+        const ratio = MASONRY_RATIOS[i % MASONRY_RATIOS.length];
+        return (
+          <div key={i} className="skeleton-card" style={{ aspectRatio: ratio }} />
+        );
+      })}
     </div>
   );
 
@@ -204,10 +219,13 @@ export default function MovieGrid({ apiKey, searchQuery, showWatchlist }) {
       >
         {movies.map((movie, i) => {
           const inWL = isInWatchlist(movie.id);
+          const ratio = MASONRY_RATIOS[i % MASONRY_RATIOS.length];
+          
           return (
             <div
               key={`${movie.id}-${i}`}
               className="movie-card"
+              style={{ aspectRatio: ratio }}
               onMouseEnter={e => handleMouseEnter(e, movie)}
               onMouseLeave={handleMouseLeave}
             >
