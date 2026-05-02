@@ -163,3 +163,45 @@ html, body {
   color: #e8854a;
 }
 
+/* ── Genre Filter Bar ── */
+.genre-bar {
+  display: flex;
+  gap: 8px;
+  padding: 8px 28px 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.genre-bar::-webkit-scrollbar { display: none; }
+
+.genre-pill {
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(240, 238, 232, 0.6);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 6px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
+  white-space: nowrap;
+}
+
+.genre-pill:hover {
+  background: rgba(255, 255, 255, 0.11);
+  color: #f0eee8;
+  transform: translateY(-1px);
+}
+
+.genre-pill--active {
+  background: rgba(232, 133, 74, 0.18);
+  border-color: #e8854a;
+  color: #e8854a;
+  font-weight: 600;
+}
+
+.genre-pill--active:hover {
+  background: rgba(232, 133, 74, 0.28);
+}

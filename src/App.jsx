@@ -4,10 +4,28 @@ import "./App.css";
 
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
+const GENRES = [
+  { id: null,   name: "All" },
+  { id: 28,     name: "Action" },
+  { id: 12,     name: "Adventure" },
+  { id: 16,     name: "Animation" },
+  { id: 35,     name: "Comedy" },
+  { id: 80,     name: "Crime" },
+  { id: 99,     name: "Documentary" },
+  { id: 18,     name: "Drama" },
+  { id: 14,     name: "Fantasy" },
+  { id: 27,     name: "Horror" },
+  { id: 9648,   name: "Mystery" },
+  { id: 10749,  name: "Romance" },
+  { id: 878,    name: "Sci-Fi" },
+  { id: 53,     name: "Thriller" },
+];
+
 export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [inputValue, setInputValue] = useState("");
   const [currentView, setCurrentView] = useState("discover");
+  const [selectedGenre, setSelectedGenre] = useState(null);
 
   function handleSearch(e) {
     const val = e.target.value;
@@ -32,14 +50,14 @@ export default function App() {
           <a 
             href="#" 
             className={`nav-link ${currentView === 'discover' ? 'active' : ''}`}
-            onClick={(e) => { e.preventDefault(); setCurrentView('discover'); }}
+            onClick={(e) => { e.preventDefault(); setCurrentView('discover'); setSelectedGenre(null); }}
           >
             Discover
           </a>
           <a 
             href="#" 
             className={`nav-link ${currentView === 'watchlist' ? 'active' : ''}`}
-            onClick={(e) => { e.preventDefault(); setCurrentView('watchlist'); }}
+            onClick={(e) => { e.preventDefault(); setCurrentView('watchlist'); setSelectedGenre(null); }}
           >
             Watchlist
           </a>
@@ -76,7 +94,28 @@ export default function App() {
             {currentView === "watchlist" ? "Movies you've saved for later" : "Hover any poster for details"}
           </span>
         </div>
-        <MovieGrid apiKey={TMDB_API_KEY} searchQuery={searchQuery} showWatchlist={currentView === "watchlist"} />
+
+        {/* Genre filter bar — only on Discover */}
+        {currentView !== "watchlist" && (
+          <div className="genre-bar">
+            {GENRES.map(g => (
+              <button
+                key={g.id ?? "all"}
+                className={`genre-pill ${selectedGenre === g.id ? "genre-pill--active" : ""}`}
+                onClick={() => setSelectedGenre(g.id)}
+              >
+                {g.name}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <MovieGrid
+          apiKey={TMDB_API_KEY}
+          searchQuery={searchQuery}
+          showWatchlist={currentView === "watchlist"}
+          selectedGenre={selectedGenre}
+        />
       </main>
     </div>
   );

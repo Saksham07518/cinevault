@@ -16,7 +16,7 @@ const breakpointColumnsObj = {
   500: 1
 };
 
-// Different aspect ratios to create that staggered Pinterest look
+
 const MASONRY_RATIOS = [
   "1/1.4",
   "1/1.8",
@@ -28,7 +28,7 @@ const MASONRY_RATIOS = [
   "1/1.35",
 ];
 
-export default function MovieGrid({ apiKey, searchQuery, showWatchlist }) {
+export default function MovieGrid({ apiKey, searchQuery, showWatchlist, selectedGenre }) {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -56,13 +56,13 @@ export default function MovieGrid({ apiKey, searchQuery, showWatchlist }) {
       if (!apiKey) { setError("No API key provided"); setLoading(false); return; }
       setPage(1);
       setHasMore(true);
-      fetchMovies(searchQuery, 1);
+      fetchMovies(searchQuery, 1, selectedGenre);
     }
-  }, [apiKey, searchQuery, showWatchlist]);
+  }, [apiKey, searchQuery, showWatchlist, selectedGenre]);
 
   useEffect(() => {
     if (!showWatchlist && page > 1) {
-      fetchMovies(searchQuery, page);
+      fetchMovies(searchQuery, page, selectedGenre);
     }
   }, [page]);
 
@@ -83,15 +83,22 @@ export default function MovieGrid({ apiKey, searchQuery, showWatchlist }) {
     return () => observer.disconnect();
   }, [showWatchlist, loading, isFetchingMore, hasMore]);
 
-  async function fetchMovies(query, pageNum) {
+  async function fetchMovies(query, pageNum, genreId) {
     try {
       if (pageNum === 1) setLoading(true);
       else setIsFetchingMore(true);
       setError(null);
 
-      const url = query
-        ? `${TMDB_BASE}/search/movie?api_key=${apiKey}&language=en-US&query=${encodeURIComponent(query)}&page=${pageNum}`
-        : `${TMDB_BASE}/trending/movie/week?api_key=${apiKey}&language=en-US&page=${pageNum}`;
+      let url;
+      if (query) {
+        // Search endpoint — filter by genre client-side
+        url = `${TMDB_BASE}/search/movie?api_key=${apiKey}&language=en-US&query=${encodeURIComponent(query)}&page=${pageNum}`;
+      } else if (genreId) {
+        // Discover endpoint supports with_genres
+        url = `${TMDB_BASE}/discover/movie?api_key=${apiKey}&language=en-US&sort_by=popularity.desc&with_genres=${genreId}&page=${pageNum}`;
+      } else {
+        url = `${TMDB_BASE}/trending/movie/week?api_key=${apiKey}&language=en-US&page=${pageNum}`;
+      }
 
       const res = await fetch(url);
       if (!res.ok) throw new Error("Failed to fetch movies");
