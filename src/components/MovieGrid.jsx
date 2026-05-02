@@ -28,7 +28,7 @@ const MASONRY_RATIOS = [
   "1/1.35",
 ];
 
-export default function MovieGrid({ apiKey, searchQuery, showWatchlist, selectedGenre }) {
+export default function MovieGrid({ apiKey, searchQuery, showWatchlist, showAnime, selectedGenre }) {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -56,13 +56,13 @@ export default function MovieGrid({ apiKey, searchQuery, showWatchlist, selected
       if (!apiKey) { setError("No API key provided"); setLoading(false); return; }
       setPage(1);
       setHasMore(true);
-      fetchMovies(searchQuery, 1, selectedGenre);
+      fetchMovies(searchQuery, 1, selectedGenre, showAnime);
     }
-  }, [apiKey, searchQuery, showWatchlist, selectedGenre]);
+  }, [apiKey, searchQuery, showWatchlist, showAnime, selectedGenre]);
 
   useEffect(() => {
     if (!showWatchlist && page > 1) {
-      fetchMovies(searchQuery, page, selectedGenre);
+      fetchMovies(searchQuery, page, selectedGenre, showAnime);
     }
   }, [page]);
 
@@ -83,7 +83,7 @@ export default function MovieGrid({ apiKey, searchQuery, showWatchlist, selected
     return () => observer.disconnect();
   }, [showWatchlist, loading, isFetchingMore, hasMore]);
 
-  async function fetchMovies(query, pageNum, genreId) {
+  async function fetchMovies(query, pageNum, genreId, isAnime) {
     try {
       if (pageNum === 1) setLoading(true);
       else setIsFetchingMore(true);
@@ -91,10 +91,11 @@ export default function MovieGrid({ apiKey, searchQuery, showWatchlist, selected
 
       let url;
       if (query) {
-        // Search endpoint — filter by genre client-side
         url = `${TMDB_BASE}/search/movie?api_key=${apiKey}&language=en-US&query=${encodeURIComponent(query)}&page=${pageNum}`;
+      } else if (isAnime) {
+        // Anime: Animation genre (16) + Japanese original language
+        url = `${TMDB_BASE}/discover/movie?api_key=${apiKey}&language=en-US&sort_by=popularity.desc&with_genres=16&with_original_language=ja&page=${pageNum}`;
       } else if (genreId) {
-        // Discover endpoint supports with_genres
         url = `${TMDB_BASE}/discover/movie?api_key=${apiKey}&language=en-US&sort_by=popularity.desc&with_genres=${genreId}&page=${pageNum}`;
       } else {
         url = `${TMDB_BASE}/trending/movie/week?api_key=${apiKey}&language=en-US&page=${pageNum}`;

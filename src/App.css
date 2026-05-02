@@ -66,6 +66,21 @@ html, body {
   background: #e8854a;
 }
 
+/* Anime nav accent */
+.nav-link--anime {
+  color: #c084fc !important;
+}
+.nav-link--anime::after {
+  background: #c084fc !important;
+}
+
+.section-title--anime {
+  background: linear-gradient(90deg, #c084fc, #f472b6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 .header-right {
   display: flex;
   align-items: center;

@@ -56,6 +56,13 @@ export default function App() {
           </a>
           <a 
             href="#" 
+            className={`nav-link ${currentView === 'anime' ? 'active nav-link--anime' : ''}`}
+            onClick={(e) => { e.preventDefault(); setCurrentView('anime'); setSelectedGenre(null); }}
+          >
+            ✦ Anime
+          </a>
+          <a 
+            href="#" 
             className={`nav-link ${currentView === 'watchlist' ? 'active' : ''}`}
             onClick={(e) => { e.preventDefault(); setCurrentView('watchlist'); setSelectedGenre(null); }}
           >
@@ -83,20 +90,26 @@ export default function App() {
 
       <main>
         <div className="section-header">
-          <h2 className="section-title">
+          <h2 className={`section-title ${currentView === 'anime' ? 'section-title--anime' : ''}`}>
             {currentView === "watchlist" 
               ? "Your Watchlist" 
-              : searchQuery 
-                ? `Results for "${searchQuery}"` 
-                : "Trending This Week"}
+              : currentView === "anime"
+                ? "✦ Anime"
+                : searchQuery 
+                  ? `Results for "${searchQuery}"` 
+                  : "Trending This Week"}
           </h2>
           <span className="section-sub">
-            {currentView === "watchlist" ? "Movies you've saved for later" : "Hover any poster for details"}
+            {currentView === "watchlist" 
+              ? "Movies you've saved for later" 
+              : currentView === "anime"
+                ? "Top Japanese animated films"
+                : "Hover any poster for details"}
           </span>
         </div>
 
         {/* Genre filter bar — only on Discover */}
-        {currentView !== "watchlist" && (
+        {currentView === "discover" && (
           <div className="genre-bar">
             {GENRES.map(g => (
               <button
@@ -114,6 +127,7 @@ export default function App() {
           apiKey={TMDB_API_KEY}
           searchQuery={searchQuery}
           showWatchlist={currentView === "watchlist"}
+          showAnime={currentView === "anime"}
           selectedGenre={selectedGenre}
         />
       </main>
