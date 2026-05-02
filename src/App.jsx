@@ -1,7 +1,7 @@
 import MovieGrid from "./components/MovieGrid";
 import "./App.css";
 
-const TMDB_API_KEY = "YOUR_TMDB_API_KEY_HERE";
+const TMDB_API_KEY = "e54cc10534683f3d416645de4432f33f";
 
 export default function App() {
   return (
