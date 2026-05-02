@@ -2,11 +2,18 @@
 
 /* ── Grid ── */
 .movie-grid {
-  columns: 5 220px;
-  column-gap: 20px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  margin-left: -20px; /* gutter offset */
+  width: auto;
   padding: 20px;
   background: #080810;
   min-height: 100vh;
+}
+.movie-grid_column {
+  padding-left: 20px;
+  background-clip: padding-box;
 }
 
 /* ── Card ── */

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import Masonry from "react-masonry-css";
 import MovieTooltip from "./MovieTooltip";
 import "./MovieGrid.css";
 
@@ -6,6 +7,14 @@ const TMDB_BASE = "https://api.themoviedb.org/3";
 const IMG_BASE = "https://image.tmdb.org/t/p/w500";
 
 
+
+const breakpointColumnsObj = {
+  default: 5,
+  1400: 4,
+  1100: 3,
+  700: 2,
+  500: 1
+};
 
 export default function MovieGrid({ apiKey, searchQuery, showWatchlist }) {
   const [movies, setMovies] = useState([]);
@@ -188,7 +197,11 @@ export default function MovieGrid({ apiKey, searchQuery, showWatchlist }) {
 
   return (
     <>
-      <div className="movie-grid">
+      <Masonry
+        breakpointCols={breakpointColumnsObj}
+        className="movie-grid"
+        columnClassName="movie-grid_column"
+      >
         {movies.map((movie, i) => {
           const inWL = isInWatchlist(movie.id);
           return (
@@ -240,7 +253,7 @@ export default function MovieGrid({ apiKey, searchQuery, showWatchlist }) {
             </div>
           );
         })}
-      </div>
+      </Masonry>
 
       {/* Floating tooltip */}
       <MovieTooltip
