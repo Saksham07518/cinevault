@@ -16,7 +16,7 @@
 /* ── Card ── */
 .movie-card {
   position: relative;
-  border-radius: 0;
+  border-radius: 20px;
   overflow: hidden;
   cursor: pointer;
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
@@ -174,7 +174,7 @@
 }
 
 .skeleton-card {
-  border-radius: 0;
+  border-radius: 20px;
   background: linear-gradient(90deg, #12101e 25%, #1a1830 50%, #12101e 75%);
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.5s infinite;
