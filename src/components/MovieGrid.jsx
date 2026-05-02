@@ -21,7 +21,7 @@ const GRID_LAYOUT = [
   { col: 3, row: 4 },
 ];
 
-export default function MovieGrid({ apiKey }) {
+export default function MovieGrid({ apiKey, searchQuery }) {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -34,18 +34,29 @@ export default function MovieGrid({ apiKey }) {
 
   useEffect(() => {
     if (!apiKey) { setError("No API key provided"); setLoading(false); return; }
-    fetchMovies();
-  }, [apiKey]);
+    fetchMovies(searchQuery);
+  }, [apiKey, searchQuery]);
 
-  async function fetchMovies() {
+  async function fetchMovies(query) {
     try {
       setLoading(true);
-      const res = await fetch(
-        `${TMDB_BASE}/trending/movie/week?api_key=${apiKey}&language=en-US`
-      );
+      setError(null);
+
+      const url = query
+        ? `${TMDB_BASE}/search/movie?api_key=${apiKey}&language=en-US&query=${encodeURIComponent(query)}&page=1`
+        : `${TMDB_BASE}/trending/movie/week?api_key=${apiKey}&language=en-US`;
+
+      const res = await fetch(url);
       if (!res.ok) throw new Error("Failed to fetch movies");
       const data = await res.json();
-      // Also fetch genres to map ids → names
+
+      if (!data.results?.length) {
+        setMovies([]);
+        setLoading(false);
+        return;
+      }
+
+      // Fetch genres to map ids → names
       const gRes = await fetch(`${TMDB_BASE}/genre/movie/list?api_key=${apiKey}&language=en-US`);
       const gData = await gRes.json();
       const genreMap = {};
@@ -77,24 +88,34 @@ export default function MovieGrid({ apiKey }) {
     positionTooltip(e, movie);
   }, []);
 
-  const handleMouseMove = useCallback((e, movie) => {
-    positionTooltip(e, movie);
-  }, []);
-
   const handleMouseLeave = useCallback(() => {
     hideTimer.current = setTimeout(() => {
       setTooltip(t => ({ ...t, visible: false }));
-    }, 80);
+    }, 300); // Increased delay to allow moving to tooltip
+  }, []);
+
+  const handleTooltipEnter = useCallback(() => {
+    clearTimeout(hideTimer.current);
   }, []);
 
   function positionTooltip(e, movie) {
+    const rect = e.currentTarget.getBoundingClientRect();
     const TW = 230, TH = 340;
     const vw = window.innerWidth, vh = window.innerHeight;
-    let x = e.clientX + 20;
-    let y = e.clientY - 70;
-    if (x + TW > vw - 12) x = e.clientX - TW - 20;
+    
+    // Default: place to the right of the card
+    let x = rect.right + 10;
+    let y = rect.top - 20;
+
+    // If it overflows right, place to the left
+    if (x + TW > vw - 12) {
+      x = rect.left - TW - 10;
+    }
+    
+    // Keep within vertical bounds
     if (y + TH > vh - 12) y = vh - TH - 12;
     if (y < 12) y = 12;
+    
     setTooltip({ visible: true, movie, x, y });
   }
 
@@ -127,6 +148,13 @@ export default function MovieGrid({ apiKey }) {
     </div>
   );
 
+  if (!loading && movies.length === 0) return (
+    <div className="grid-error">
+      <p>🎬 No movies found</p>
+      <small>Try a different search term</small>
+    </div>
+  );
+
   return (
     <>
       <div className="movie-grid">
@@ -139,7 +167,6 @@ export default function MovieGrid({ apiKey }) {
               className="movie-card"
               style={{ gridColumn: `span ${layout.col}`, gridRow: `span ${layout.row}` }}
               onMouseEnter={e => handleMouseEnter(e, movie)}
-              onMouseMove={e => handleMouseMove(e, movie)}
               onMouseLeave={handleMouseLeave}
             >
               {/* Poster image */}
@@ -194,6 +221,8 @@ export default function MovieGrid({ apiKey }) {
         y={tooltip.y}
         inWatchlist={tooltip.movie ? isInWatchlist(tooltip.movie.id) : false}
         onToggleWatchlist={toggleWatchlist}
+        onMouseEnter={handleTooltipEnter}
+        onMouseLeave={handleMouseLeave}
       />
     </>
   );

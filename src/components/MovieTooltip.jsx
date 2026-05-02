@@ -13,7 +13,7 @@ function StarRating({ rating }) {
   );
 }
 
-export default function MovieTooltip({ movie, visible, x, y, inWatchlist, onToggleWatchlist }) {
+export default function MovieTooltip({ movie, visible, x, y, inWatchlist, onToggleWatchlist, onMouseEnter, onMouseLeave }) {
   const ref = useRef(null);
 
   if (!movie) return null;
@@ -25,6 +25,8 @@ export default function MovieTooltip({ movie, visible, x, y, inWatchlist, onTogg
       ref={ref}
       className={`movie-tooltip ${visible ? "visible" : ""}`}
       style={{ left: x, top: y }}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
       <div className="tip-box">
         {/* Banner */}

@@ -1,9 +1,25 @@
+import { useState } from "react";
 import MovieGrid from "./components/MovieGrid";
 import "./App.css";
 
-const TMDB_API_KEY = "e54cc10534683f3d416645de4432f33f";
+const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
 export default function App() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [inputValue, setInputValue] = useState("");
+
+  function handleSearch(e) {
+    const val = e.target.value;
+    setInputValue(val);
+    clearTimeout(window._searchTimer);
+    window._searchTimer = setTimeout(() => setSearchQuery(val.trim()), 400);
+  }
+
+  function handleClear() {
+    setInputValue("");
+    setSearchQuery("");
+  }
+
   return (
     <div className="app">
       <header className="app-header">
@@ -16,16 +32,32 @@ export default function App() {
           <a href="#" className="nav-link">Trending</a>
         </nav>
         <div className="header-right">
-          <span className="powered-by">Powered by TMDB</span>
+          <div className="search-wrap">
+            <span className="search-icon">🔍</span>
+            <input
+              id="movie-search"
+              className="search-input"
+              type="text"
+              placeholder="Search movies…"
+              value={inputValue}
+              onChange={handleSearch}
+              autoComplete="off"
+            />
+            {inputValue && (
+              <button className="search-clear" onClick={handleClear} aria-label="Clear search">✕</button>
+            )}
+          </div>
         </div>
       </header>
 
       <main>
         <div className="section-header">
-          <h2 className="section-title">Trending This Week</h2>
+          <h2 className="section-title">
+            {searchQuery ? `Results for "${searchQuery}"` : "Trending This Week"}
+          </h2>
           <span className="section-sub">Hover any poster for details</span>
         </div>
-        <MovieGrid apiKey={TMDB_API_KEY} />
+        <MovieGrid apiKey={TMDB_API_KEY} searchQuery={searchQuery} />
       </main>
     </div>
   );
