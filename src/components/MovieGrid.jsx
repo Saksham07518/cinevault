@@ -21,7 +21,7 @@ const GRID_LAYOUT = [
   { col: 3, row: 4 },
 ];
 
-export default function MovieGrid({ apiKey, searchQuery }) {
+export default function MovieGrid({ apiKey, searchQuery, showWatchlist }) {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -33,9 +33,19 @@ export default function MovieGrid({ apiKey, searchQuery }) {
   const hideTimer = useRef(null);
 
   useEffect(() => {
-    if (!apiKey) { setError("No API key provided"); setLoading(false); return; }
-    fetchMovies(searchQuery);
-  }, [apiKey, searchQuery]);
+    if (showWatchlist) {
+      setMovies(watchlist);
+      setLoading(false);
+      setError(null);
+    }
+  }, [showWatchlist, watchlist]);
+
+  useEffect(() => {
+    if (!showWatchlist) {
+      if (!apiKey) { setError("No API key provided"); setLoading(false); return; }
+      fetchMovies(searchQuery);
+    }
+  }, [apiKey, searchQuery, showWatchlist]);
 
   async function fetchMovies(query) {
     try {
@@ -150,8 +160,8 @@ export default function MovieGrid({ apiKey, searchQuery }) {
 
   if (!loading && movies.length === 0) return (
     <div className="grid-error">
-      <p>🎬 No movies found</p>
-      <small>Try a different search term</small>
+      <p>{showWatchlist ? "🍿 Watchlist is empty" : "🎬 No movies found"}</p>
+      <small>{showWatchlist ? "Save some movies to watch later" : "Try a different search term"}</small>
     </div>
   );
 
