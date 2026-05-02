@@ -175,8 +175,8 @@ export default function MovieGrid({ apiKey, searchQuery, showWatchlist }) {
 
   if (loading) return (
     <div className="grid-loading">
-      {GRID_LAYOUT.map((_, i) => (
-        <div key={i} className={`skeleton-card sc-${i + 1}`} />
+      {Array.from({ length: 12 }).map((_, i) => (
+        <div key={i} className="skeleton-card" />
       ))}
     </div>
   );
