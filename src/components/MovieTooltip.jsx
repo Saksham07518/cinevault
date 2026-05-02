@@ -1,4 +1,3 @@
-import { useEffect, useRef } from "react";
 import "./MovieTooltip.css";
 
 function StarRating({ rating }) {
@@ -14,15 +13,12 @@ function StarRating({ rating }) {
 }
 
 export default function MovieTooltip({ movie, visible, x, y, inWatchlist, onToggleWatchlist, onMouseEnter, onMouseLeave }) {
-  const ref = useRef(null);
-
   if (!movie) return null;
 
   const BACKDROP = movie.backdrop || movie.poster;
 
   return (
     <div
-      ref={ref}
       className={`movie-tooltip ${visible ? "visible" : ""}`}
       style={{ left: x, top: y }}
       onMouseEnter={onMouseEnter}
@@ -41,24 +37,28 @@ export default function MovieTooltip({ movie, visible, x, y, inWatchlist, onTogg
         </div>
 
         <div className="tip-body">
-          {/* Genre chips */}
-          <div className="tip-genres">
-            {movie.genres.map(g => (
-              <span key={g} className="tip-genre">{g}</span>
-            ))}
-          </div>
+          {/* Genre chips — only if genres exist */}
+          {movie.genres?.length > 0 && (
+            <div className="tip-genres">
+              {movie.genres.map(g => (
+                <span key={g} className="tip-genre">{g}</span>
+              ))}
+            </div>
+          )}
 
           {/* Meta row */}
           <div className="tip-meta">
-            <span className="tip-rating">★ {movie.rating}</span>
-            <span className="tip-dot" />
-            <span className="tip-year">{movie.year}</span>
+            {movie.rating && <span className="tip-rating">★ {movie.rating}</span>}
+            {movie.rating && movie.year && <span className="tip-dot" />}
+            {movie.year && <span className="tip-year">{movie.year}</span>}
           </div>
 
-          {/* Description */}
-          <p className="tip-desc">
-            {movie.desc?.length > 120 ? movie.desc.slice(0, 117) + "…" : movie.desc}
-          </p>
+          {/* Description — only if it exists */}
+          {movie.desc && (
+            <p className="tip-desc">
+              {movie.desc.length > 120 ? movie.desc.slice(0, 117) + "…" : movie.desc}
+            </p>
+          )}
 
           {/* Actions */}
           <div className="tip-actions">
@@ -79,10 +79,13 @@ export default function MovieTooltip({ movie, visible, x, y, inWatchlist, onTogg
           </div>
         </div>
 
-        <div className="tip-divider" />
-
-        {/* Star rating */}
-        <StarRating rating={movie.rating} />
+        {/* Star rating — only if rating exists */}
+        {movie.rating && (
+          <>
+            <div className="tip-divider" />
+            <StarRating rating={movie.rating} />
+          </>
+        )}
       </div>
     </div>
   );
